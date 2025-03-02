@@ -140,13 +140,18 @@
 }
 
 .login-kakao-button {
+  border: none;
+  background: none;
+  cursor: pointer;
   align-self: stretch;
   background-color: #f7e317;
-  border: 1px solid;
   border-radius: 6px;
   height: 48px;
   overflow: hidden;
   position: relative;
+  width: 100%;
+}
+.login-kakao-button img {
   width: 100%;
 }
 
@@ -154,9 +159,7 @@
   align-items: center;
   display: inline-flex;
   gap: 8px;
-  left: 92px;
   position: relative;
-  top: 12px;
 }
 
 .login-auth-text {
@@ -173,6 +176,9 @@
 }
 
 .login-google-button {
+  border: none;
+  background: none;
+  cursor: pointer;
   align-self: stretch;
   border: 1px solid;
   border-color: #dfe1e5;
@@ -187,9 +193,7 @@
   align-items: center;
   display: inline-flex;
   gap: 8px;
-  left: 98px;
   position: relative;
-  top: 12px;
 }
 /* 푸터 */
 .login-footer {
