@@ -17,3 +17,10 @@
 ### 코드 포멧터
 - eslint
 - prettier
+
+## 개발 스크립트
+
+  ```bash
+  npm start dev  # 개발 서버 실행
+  npm test       # 테스트 실행
+  ```
