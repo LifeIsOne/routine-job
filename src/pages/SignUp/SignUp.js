@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import "./SignUp.css"
+import "./SignUp.css";
 
 const SignUp = () => {
-  const [prepStatus, setPrepStatus] = useState(true); // 아코디언 상태
+  const [prepStatus, setPrepStatus] = useState(false); // 아코디언 상태
   const [difficultyStatus, setDifficultyStatus] = useState(false); // 취업 어려운 점 상태
 
   // 선택 항목 리스트
@@ -32,7 +32,7 @@ const SignUp = () => {
     // 폼 컨테이나
     <div className="container">
       {/* 헤더 現 로고만 */}
-      <div className="header"> 
+      <div className="header">
         <div className="header-logo">
           <img
             className="img"
@@ -124,7 +124,9 @@ const SignUp = () => {
 
       {/* 현재 직업 준비 상태 폼 */}
       <div className="form-group">
-        <label label className="form-label">현재 취업 준비 상태</label>
+        <label label className="form-label">
+          현재 취업 준비 상태
+        </label>
         <div
           className="accordion-header"
           onClick={() => setPrepStatus(!prepStatus)}
@@ -181,6 +183,7 @@ const SignUp = () => {
       </div>
 
       {/* 취업 루틴관리에 관심이 있나요? 폼 */}
+      {/* TODO: useSTate로 관리? */}
       <div className="form-group">
         <label className="form-laber">취업 루틴관리에 관심이 있나요?</label>
         <div className="routine-interest-container">
@@ -202,6 +205,7 @@ const SignUp = () => {
               name="routineInterest"
               value="no"
               className="radio-input"
+              defaultChecked // 기본값
             />
             <label htmlFor="routineNo" className="radio-label">
               아니요
