@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import "./SignUp.css"
 
-const SingUp = () => {
-  // const [username, setUsername] = useState("");
+const SignUp = () => {
   const [prepStatus, setPrepStatus] = useState(true); // 아코디언 상태
+  const [difficultyStatus, setDifficultyStatus] = useState(false); // 취업 어려운 점 상태
 
+  // 선택 항목 리스트
+  // 현재 직업 준비 상태 폼
   const prepOptions = [
     { id: "cert", label: "자격증 준비중" },
     { id: "resume", label: "이력서/포트폴리오 작성 중" },
@@ -14,7 +17,7 @@ const SingUp = () => {
     { id: "project", label: "사이드 프로젝트 진행 중" },
     { id: "change", label: "이직 준비중" },
   ];
-
+  // 취업 중 어려운 점 폼
   const difficulties = [
     { id: "exp", label: "경험/스펙 부족" },
     { id: "info", label: "채용 정보 부족" },
@@ -26,18 +29,19 @@ const SingUp = () => {
   ];
 
   return (
-    // <div className="login-container">
-    //   <div>SingUp</div>
-    //   <input
-    //     type="text"
-    //     placeholder="이름을 입력하세요"
-    //     value={username}
-    //     onClick={(e) => setUsername(e.target.value)}
-    //   />
-    // </div>
-
     // 폼 컨테이나
-    <div className="form-container">
+    <div className="container">
+      {/* 헤더 現 로고만 */}
+      <div className="header"> 
+        <div className="header-logo">
+          <img
+            className="img"
+            alt="Login Banner"
+            src="/assets/images/login/login-banner-img.png"
+          />
+        </div>
+      </div>
+
       {/* 이름 폼*/}
       <div className="form-group">
         <label className="form-label">이름</label>
@@ -51,7 +55,7 @@ const SingUp = () => {
       {/* 생년월일 폼 */}
       <div className="form-group">
         <label className="form-label">생년월일</label>
-        <input type="date" className="form-input" />
+        <input type="date" className="form-input" placeholder="연/월/일" />
       </div>
 
       {/* 최종락력 폼 */}
@@ -99,19 +103,19 @@ const SingUp = () => {
       <div className="form-group">
         <label className="form-label">총 취업 준비 기간</label>
         <div className="duration-container">
-          <select className="form-select duration-select">
-            <option value="">년</option>
+          <select className="form-select duration-select" defaultValue={"0"}>
+            {/* <option value="">년</option> */}
             {[0, 1, 2, 3, 4, 5].map((year) => (
               <option key={year} value={year}>
-                {year}년
+                {year} 년
               </option>
             ))}
           </select>
-          <select className="form-select duration-select">
-            <option value="">개월</option>
-            {[...Array(12)].map((_, i) => (
-              <option key={i} value={i + 1}>
-                {i + 1}월
+          <select className="form-select duration-select" defaultValue={"0"}>
+            {/* <option value="0">0 개월</option> */}
+            {[...Array(11)].map((_, i) => (
+              <option key={i} value={i}>
+                {i} 개월
               </option>
             ))}
           </select>
@@ -120,11 +124,12 @@ const SingUp = () => {
 
       {/* 현재 직업 준비 상태 폼 */}
       <div className="form-group">
+        <label label className="form-label">현재 취업 준비 상태</label>
         <div
           className="accordion-header"
           onClick={() => setPrepStatus(!prepStatus)}
         >
-          <label className="form-label">현재 취업 준비 상태</label>
+          <span>전부 선택하세요</span>
           <span className={`arrow ${prepStatus ? "open" : ""}`}>▼</span>
         </div>
 
@@ -145,24 +150,34 @@ const SingUp = () => {
           </div>
         )}
       </div>
+
       {/* 취업 중 어려운 점 폼 */}
       <div className="form-group">
         <label className="form-label">취업 중 어려운 점</label>
-        <div className="difficulties-container">
-          {difficulties.map((item) => (
-            <div key={item.id} className="radio-item">
-              <input
-                type="radio"
-                id={item.id}
-                name="difficulty"
-                className="radio-input"
-              />
-              <label htmlFor={item.id} className="radio-label">
-                {item.label}
-              </label>
-            </div>
-          ))}
+        <div
+          className="accordion-header"
+          onClick={() => setDifficultyStatus(!difficultyStatus)}
+        >
+          <span>전부 선택하세요</span>
+          <span className={`arrow ${difficultyStatus ? "open" : ""}`}>▼</span>
         </div>
+
+        {difficultyStatus && (
+          <div className="checkbox-group">
+            {difficulties.map((item) => (
+              <div key={item.id} className="checkbox-item">
+                <input
+                  type="checkbox"
+                  id={item.id}
+                  className="checkbox-input"
+                />
+                <label htmlFor={item.id} className="checkbox-label">
+                  {item.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 취업 루틴관리에 관심이 있나요? 폼 */}
@@ -203,4 +218,4 @@ const SingUp = () => {
   );
 };
 
-export default SingUp;
+export default SignUp;

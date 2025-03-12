@@ -1,4 +1,4 @@
-import "../App.css"; // 필요시 경로 확인
+import "../../App.css"
 
 function LoginSuccess() {
   //
