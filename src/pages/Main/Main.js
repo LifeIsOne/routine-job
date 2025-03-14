@@ -122,20 +122,21 @@ const Main = () => {
         </div>
       </header>
 
-      <div className="success-case-section">
-        <h1>대기업 취업 성공자 루트 엿보기</h1>
+      <div className="success-case-header">
+        <h1 className="success-case-title">대기업 취업 성공자 루트 엿보기</h1>
         <div className="subscription-status">구독중</div>
-        <div className="case-list">
-          {successCases.map((item) => (
-            <div key={item.id} className="case-item">
-              <img src={item.image} alt={item.company} className="case-image" />
-              <div className="case-info">
-                <div>{item.company}</div>
-                <div>{item.position}</div>
-              </div>
+      </div>
+
+      <div className="case-list">
+        {successCases.map((item) => (
+          <div key={item.id} className="case-item">
+            <img src={item.image} alt={item.company} className="case-image" />
+            <div className="case-info">
+              <div>{item.company}</div>
+              <div>{item.position}</div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
       <div className="tab-section">
