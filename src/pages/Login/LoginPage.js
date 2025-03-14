@@ -1,7 +1,7 @@
 import React from "react";
 // import "../App.css"; // 필요시 경로 확인
-import "../../App.css"
-import "./Login.css"
+import "../../App.css";
+import "./Login.css";
 
 function LoginPage() {
   const handleKakaoLogin = () => {
@@ -22,7 +22,7 @@ function LoginPage() {
               <img
                 className="img"
                 alt="Login Banner"
-                src="/assets/images/login/login-banner-img.png"
+                src="/assets/images/RoutineJob_logo.png"
               />
               <div className="login-banner-text">
                 <div className="login-banner-text-1">
@@ -55,7 +55,10 @@ function LoginPage() {
               </div>
             </button>
 
-            <button className="login-google-button" onClick={handleLoginSuccess}>
+            <button
+              className="login-google-button"
+              onClick={handleLoginSuccess}
+            >
               <div className="login-google-button-content">
                 <img
                   className="img-2"
@@ -68,7 +71,9 @@ function LoginPage() {
           </div>
 
           <div className="login-footer">
-            <div className="login-footer-question">궁금하신 점이 있으신가요?</div>
+            <div className="login-footer-question">
+              궁금하신 점이 있으신가요?
+            </div>
             <div className="login-footer-contact">문의하기</div>
           </div>
         </div>
