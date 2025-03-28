@@ -21,52 +21,108 @@ const Main = () => {
     },
     // ... 더 많은 더미 데이터
   ];
+  // 상태로 관리
+  const [routineData, setRoutineData] = useState({});
 
-  const routineData = {
-    morning: {
-      title: "아침",
-      tasks: [
-        {
-          id: 1,
-          task: "스트레칭 하기",
-          completed: true,
-          hasAlarm: true,
-          alarmTime: new Date(new Date().setHours(8, 0, 0)),
-        },
-        {
-          id: 2,
-          task: "양치하기",
-          completed: true,
-          hasAlarm: false,
-        },
-        {
-          id: 3,
-          task: "물 한잔 마시기",
-          completed: true,
-          hasAlarm: false,
-        },
-      ],
-    },
-    lunch: {
-      title: "점심",
-      tasks: [
-        {
-          id: 4,
-          task: "유산균 먹기",
-          completed: false,
-          hasAlarm: true,
-          alarmTime: new Date(new Date().setHours(12, 0, 0)),
-        },
-      ],
-    },
-  };
+  // 하드코딩
+  // const routineData = {
+  //   morning: {
+  //     title: "아침",
+  //     tasks: [
+  //       {
+  //         id: 1,
+  //         task: "스트레칭 하기",
+  //         completed: true,
+  //         hasAlarm: true,
+  //         alarmTime: new Date(new Date().setHours(8, 0, 0)),
+  //       },
+  //       {
+  //         id: 2,
+  //         task: "양치하기",
+  //         completed: true,
+  //         hasAlarm: false,
+  //       },
+  //       {
+  //         id: 3,
+  //         task: "물 한잔 마시기",
+  //         completed: true,
+  //         hasAlarm: false,
+  //       },
+  //     ],
+  //   },
+  //   lunch: {
+  //     title: "점심",
+  //     tasks: [
+  //       {
+  //         id: 4,
+  //         task: "유산균 먹기",
+  //         completed: false,
+  //         hasAlarm: true,
+  //         alarmTime: new Date(new Date().setHours(12, 0, 0)),
+  //       },
+  //     ],
+  //   },
+  // };
 
   useEffect(() => {
+    // WebSocket 연결 추가
+    const socket = new WebSocket("ws://localhost:8000/api/routine_list");
+
+    socket.onopen = () => {
+      console.log("✅WebSocket 연결됨");
+
+      const reqData = {
+        user_key: "dummy_key_001",
+        user_name: "홍길동",
+        request_date: new Date().toISOString().slice(0, 10),
+      };
+
+      socket.send(JSON.stringify(reqData));
+    };
+
+    socket.onmessage = (e) => {
+      const raw = JSON.parse(e.data);
+      const data = JSON.parse(e.data);
+      console.log("루틴 응답 : ", data);
+      // 임시 코드
+      const parsed = {};
+      for (const key in raw) {
+        const section = raw[key];
+        parsed[key] = {
+          ...section,
+          tasks: section.tasks.map((task) => ({
+            ...task,
+            alarmTime: task.alarmTime
+              ? (() => {
+                  const [h, m, s] = task.alarmTime.split(":");
+                  const date = new Date();
+                  return new Date(
+                    date.getFullYear(),
+                    date.getMonth(),
+                    date.getDate(),
+                    h,
+                    m,
+                    s
+                  );
+                })()
+              : null,
+            completed: task.completed ?? false, // undefined 방지
+            hasAlarm: task.hasAlarm ?? !!task.alarmTime, // fallback 처리
+          })),
+        };
+      }
+      console.log("🟢 파싱된 루틴 데이터:", parsed);
+      setRoutineData(parsed);
+    };
+
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      socket.close();
+      clearInterval(timer);
+    };
   }, []);
 
   const getTimeRemaining = (alarmTime) => {
@@ -167,14 +223,14 @@ const Main = () => {
       <div className="routine-list">
         {Object.entries(routineData).map(([key, timeBlock]) => (
           <React.Fragment key={key}>
-            {timeBlock.tasks.map((item, index) => (
-              <div key={item.id} className="routine-row">
+            {timeBlock?.tasks?.map((item, index) => (
+              <div key={item.task_id} className="routine-row">
                 {index === 0 ? (
-                  <div className="time-block-title">{timeBlock.title}</div>
+                  <div className="time-block-title">아침</div>
                 ) : (
                   <div className="empty-cell"></div>
                 )}
-                <div className="task-text">{item.task}</div>
+                <div className="task-text">{item.task_name || item.task}</div>
                 <div className="checkbox-cell">
                   <input
                     type="checkbox"
