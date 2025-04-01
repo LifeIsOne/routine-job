@@ -1,0 +1,17 @@
+{
+  "editor.codeActionsOnSave": { // 저장 [Ctrl + S]시 자동 코드 수정
+    "source.fixAll.eslint": "true"
+  },
+  "editor.formatOnSave": true,  // 저장시 자동 포멧
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // 기본 포매터 = `Prettier`
+  
+  
+  // `ESLint` 적용될 파일 타입들
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  
+}
