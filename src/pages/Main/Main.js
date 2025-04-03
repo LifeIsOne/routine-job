@@ -117,26 +117,33 @@ const Main = () => {
       // console.log("🟢 파싱된 루틴 데이터:", parsed);
       // setRoutineData(parsed);
 
-      const parsedTasks = raw.task_list.map((task) => {
-        const [h, m, s] = task.execute_time.split(":");
-        const date = new Date();
-        return {
-          ...task,
-          alarmTime: new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate(),
-            h,
-            m,
-            s
-          ),
-          compleate: task.completed ?? false,
-          hasAlarm: task.use_timer || !!task.execute_time,
-        };
-      });
+      socket.onmessage = (e) => {
+        const raw = JSON.parse(e.data);
+        console.log("루틴 응답 : ", raw);
 
-      // 상태 저장
-      setRoutineData({ list: parsedTasks });
+        // task_list만 꺼내서 가공
+        const parsedList = raw.task_list.map((task) => {
+          // 시간 데이터 : 로 나누기
+          const [h, m, s] = task.execute_time.split(":");
+          const date = new Date();
+          return {
+            ...task,
+            alarmTime: new Date(
+              date.getFullYear(),
+              date.getMonth(),
+              date.getDate(),
+              h,
+              m,
+              s
+            ),
+            completed: task.completed ?? false,
+            hasAlarm: task.use_timer || !!task.execute_time,
+          };
+        });
+
+        // 루틴 데이터로 저장 (리스트만 있음)
+        setRoutineData({ list: parsedList });
+      };
     };
 
     const timer = setInterval(() => {
@@ -244,8 +251,9 @@ const Main = () => {
         </button>
       </div>
 
-      <div className="routine-list">
-        {Object.entries(routineData).map(([item, index]) => (
+      {/* 실패? */}
+      {/* <div className="routine-list">
+        {Object.entries(routineData).map(([key, index]) => (
           <React.Fragment key={key}>
             {timeBlock?.tasks?.map((item, index) => (
               <div key={item.task_id} className="routine-row">
@@ -278,6 +286,38 @@ const Main = () => {
               </div>
             ))}
           </React.Fragment>
+        ))}
+      </div> */}
+
+      {/* ########  NO2 ######## */}
+      <div className="routine-list">
+        {(routineData.list || []).map((item, index) => (
+          <div key={item.task_id} className="routine-row">
+            <div className="time-block-title">
+              {index === 0 ? "오늘 루틴" : ""}
+            </div>
+            <div className="task-text">{item.task_name}</div>
+            <div className="checkbox-cell">
+              <input
+                type="checkbox"
+                checked={item.completed}
+                className="task-checkbox"
+                readOnly
+              />
+            </div>
+            <div className="alarm-cell">
+              {item.hasAlarm && (
+                <div className="alarm-container">
+                  <span className="material-symbols-outlined">
+                    notifications
+                  </span>
+                  <span className="time-remaining">
+                    {getTimeRemaining(item.alarmTime)}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
         ))}
       </div>
 
