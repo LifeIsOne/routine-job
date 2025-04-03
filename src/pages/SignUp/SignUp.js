@@ -113,7 +113,7 @@ const SignUp = () => {
           </select>
           <select className="form-select duration-select" defaultValue={"0"}>
             {/* <option value="0">0 개월</option> */}
-            {[...Array(11)].map((_, i) => (
+            {[...Array(12)].map((_, i) => (
               <option key={i} value={i}>
                 {i} 개월
               </option>

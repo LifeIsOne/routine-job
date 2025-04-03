@@ -24,53 +24,13 @@ const Main = () => {
   // 상태로 관리
   const [routineData, setRoutineData] = useState({});
 
-  // 하드코딩
-  // const routineData = {
-  //   morning: {
-  //     title: "아침",
-  //     tasks: [
-  //       {
-  //         id: 1,
-  //         task: "스트레칭 하기",
-  //         completed: true,
-  //         hasAlarm: true,
-  //         alarmTime: new Date(new Date().setHours(8, 0, 0)),
-  //       },
-  //       {
-  //         id: 2,
-  //         task: "양치하기",
-  //         completed: true,
-  //         hasAlarm: false,
-  //       },
-  //       {
-  //         id: 3,
-  //         task: "물 한잔 마시기",
-  //         completed: true,
-  //         hasAlarm: false,
-  //       },
-  //     ],
-  //   },
-  //   lunch: {
-  //     title: "점심",
-  //     tasks: [
-  //       {
-  //         id: 4,
-  //         task: "유산균 먹기",
-  //         completed: false,
-  //         hasAlarm: true,
-  //         alarmTime: new Date(new Date().setHours(12, 0, 0)),
-  //       },
-  //     ],
-  //   },
-  // };
-
   useEffect(() => {
     // 🥬🥬🥬🥬🥬 소켓 통신 🥬🥬🥬🥬🥬
     // WebSocket 연결 추가
     const socket = new WebSocket("ws://localhost:8000/api/routine_list");
 
     socket.onopen = () => {
-      console.log("✅WebSocket 연결됨");
+      console.log("✅ WebSocket 연결됨");
 
       const reqData = {
         user_key: "dummy_key_001",
@@ -82,68 +42,46 @@ const Main = () => {
     };
 
     socket.onmessage = (e) => {
-      const raw = JSON.parse(e.data);
-      // TODO : 불필요?
-      // const data = JSON.parse(e.data);
-      console.log("루틴 응답 : ", raw);
+      console.log("서버 응답 데이터:", e.data);
 
-      // 임시 코드
-      // const parsed = {};
-      // for (const key in raw) {
-      //   const section = raw[key];
-      //   parsed[key] = {
-      //     ...section,
-      //     tasks: section.tasks.map((task) => ({
-      //       ...task,
-      //       alarmTime: task.alarmTime
-      //         ? (() => {
-      //             const [h, m, s] = task.alarmTime.split(":");
-      //             const date = new Date();
-      //             return new Date(
-      //               date.getFullYear(),
-      //               date.getMonth(),
-      //               date.getDate(),
-      //               h,
-      //               m,
-      //               s
-      //             );
-      //           })()
-      //         : null,
-      //       completed: task.completed ?? false, // undefined 방지
-      //       hasAlarm: task.hasAlarm ?? !!task.alarmTime, // fallback 처리
-      //     })),
-      //   };
+      // 받은 Data를 `JSON`으로 파싱
+      let raw = JSON.parse(e.data);
+      console.log("응답 전체 데이터:", raw);
+
+      // // `raw`가 'string'이면 한 번 더 파싱
+      // if (typeof raw === "string") {
+      //   raw = JSON.parse(raw);
       // }
-      // console.log("🟢 파싱된 루틴 데이터:", parsed);
-      // setRoutineData(parsed);
+      // `raw`가 문자열이기 때문에 JSON으로 파싱
+      raw = JSON.parse(raw);
 
-      socket.onmessage = (e) => {
-        const raw = JSON.parse(e.data);
-        console.log("루틴 응답 : ", raw);
+      // `task_list`가 없으면 경고, 로직 종료
+      if (!raw || !raw.task_list) {
+        console.warn("⚠️task_list가 없습니다. raw:", raw);
+        setRoutineData({ list: [] }); // 렌더링 되게 빈 리스트 전달
+        return;
+      }
 
-        // task_list만 꺼내서 가공
-        const parsedList = raw.task_list.map((task) => {
-          // 시간 데이터 : 로 나누기
-          const [h, m, s] = task.execute_time.split(":");
-          const date = new Date();
-          return {
-            ...task,
-            alarmTime: new Date(
-              date.getFullYear(),
-              date.getMonth(),
-              date.getDate(),
-              h,
-              m,
-              s
-            ),
-            completed: task.completed ?? false,
-            hasAlarm: task.use_timer || !!task.execute_time,
-          };
-        });
-
-        // 루틴 데이터로 저장 (리스트만 있음)
-        setRoutineData({ list: parsedList });
-      };
+      // `task_list`를 돌며 각 필요한 데이터 가공
+      const parsedList = raw.task_list.map((task) => {
+        const [h, m, s] = task.execute_time.split(":"); // ":" 기준으로 문자열 분해 ( HH:MM:SS )
+        const date = new Date();
+        return {
+          ...task,
+          alarmTime: new Date( // ⏰ 알람 시간을 Date 타입으로 변환
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            h,
+            m,
+            s
+          ),
+          completed: task.completed ?? false, // `null`과 `undefined` 방지
+          hasAlarm: task.use_timer || !!task.execute_time, // ⏰ 알람 유무
+        };
+      });
+      // 최종 데이터 저장 ( 렌더용 )
+      setRoutineData({ list: parsedList });
     };
 
     const timer = setInterval(() => {
@@ -251,51 +189,14 @@ const Main = () => {
         </button>
       </div>
 
-      {/* 실패? */}
-      {/* <div className="routine-list">
-        {Object.entries(routineData).map(([key, index]) => (
-          <React.Fragment key={key}>
-            {timeBlock?.tasks?.map((item, index) => (
-              <div key={item.task_id} className="routine-row">
-                {index === 0 ? (
-                  <div className="time-block-title">아침</div>
-                ) : (
-                  <div className="empty-cell"></div>
-                )}
-                <div className="task-text">{item.task_name || item.task}</div>
-                <div className="checkbox-cell">
-                  <input
-                    type="checkbox"
-                    checked={item.completed}
-                    className="task-checkbox"
-                    readOnly
-                  />
-                </div>
-                <div className="alarm-cell">
-                  {item.hasAlarm && (
-                    <div className="alarm-container">
-                      <span className="material-symbols-outlined">
-                        notifications
-                      </span>
-                      <span className="time-remaining">
-                        {getTimeRemaining(item.alarmTime)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </React.Fragment>
-        ))}
-      </div> */}
-
-      {/* ########  NO2 ######## */}
       <div className="routine-list">
         {(routineData.list || []).map((item, index) => (
           <div key={item.task_id} className="routine-row">
-            <div className="time-block-title">
-              {index === 0 ? "오늘 루틴" : ""}
-            </div>
+            {index === 0 ? (
+              <div className="time-block-title">오늘 루틴</div>
+            ) : (
+              <div className="empty-cell"></div>
+            )}
             <div className="task-text">{item.task_name}</div>
             <div className="checkbox-cell">
               <input
