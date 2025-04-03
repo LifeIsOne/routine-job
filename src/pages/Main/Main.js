@@ -65,6 +65,7 @@ const Main = () => {
   // };
 
   useEffect(() => {
+    // 🥬🥬🥬🥬🥬 소켓 통신 🥬🥬🥬🥬🥬
     // WebSocket 연결 추가
     const socket = new WebSocket("ws://localhost:8000/api/routine_list");
 
@@ -82,37 +83,60 @@ const Main = () => {
 
     socket.onmessage = (e) => {
       const raw = JSON.parse(e.data);
-      const data = JSON.parse(e.data);
-      console.log("루틴 응답 : ", data);
+      // TODO : 불필요?
+      // const data = JSON.parse(e.data);
+      console.log("루틴 응답 : ", raw);
+
       // 임시 코드
-      const parsed = {};
-      for (const key in raw) {
-        const section = raw[key];
-        parsed[key] = {
-          ...section,
-          tasks: section.tasks.map((task) => ({
-            ...task,
-            alarmTime: task.alarmTime
-              ? (() => {
-                  const [h, m, s] = task.alarmTime.split(":");
-                  const date = new Date();
-                  return new Date(
-                    date.getFullYear(),
-                    date.getMonth(),
-                    date.getDate(),
-                    h,
-                    m,
-                    s
-                  );
-                })()
-              : null,
-            completed: task.completed ?? false, // undefined 방지
-            hasAlarm: task.hasAlarm ?? !!task.alarmTime, // fallback 처리
-          })),
+      // const parsed = {};
+      // for (const key in raw) {
+      //   const section = raw[key];
+      //   parsed[key] = {
+      //     ...section,
+      //     tasks: section.tasks.map((task) => ({
+      //       ...task,
+      //       alarmTime: task.alarmTime
+      //         ? (() => {
+      //             const [h, m, s] = task.alarmTime.split(":");
+      //             const date = new Date();
+      //             return new Date(
+      //               date.getFullYear(),
+      //               date.getMonth(),
+      //               date.getDate(),
+      //               h,
+      //               m,
+      //               s
+      //             );
+      //           })()
+      //         : null,
+      //       completed: task.completed ?? false, // undefined 방지
+      //       hasAlarm: task.hasAlarm ?? !!task.alarmTime, // fallback 처리
+      //     })),
+      //   };
+      // }
+      // console.log("🟢 파싱된 루틴 데이터:", parsed);
+      // setRoutineData(parsed);
+
+      const parsedTasks = raw.task_list.map((task) => {
+        const [h, m, s] = task.execute_time.split(":");
+        const date = new Date();
+        return {
+          ...task,
+          alarmTime: new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            h,
+            m,
+            s
+          ),
+          compleate: task.completed ?? false,
+          hasAlarm: task.use_timer || !!task.execute_time,
         };
-      }
-      console.log("🟢 파싱된 루틴 데이터:", parsed);
-      setRoutineData(parsed);
+      });
+
+      // 상태 저장
+      setRoutineData({ list: parsedTasks });
     };
 
     const timer = setInterval(() => {
@@ -221,7 +245,7 @@ const Main = () => {
       </div>
 
       <div className="routine-list">
-        {Object.entries(routineData).map(([key, timeBlock]) => (
+        {Object.entries(routineData).map(([item, index]) => (
           <React.Fragment key={key}>
             {timeBlock?.tasks?.map((item, index) => (
               <div key={item.task_id} className="routine-row">
